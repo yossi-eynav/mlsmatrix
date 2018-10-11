@@ -17,7 +17,7 @@ function getResultSize(element) {
     const size = element.innerText.match(/([\d.,]+)[ ]?(House Sq Ft|SqFt)/);
     if(!size) { return null; }
 
-    return size[1].replace(/ /g,',');
+    return parseInt(size[1].replace(/[ ,]/g,''), 10);
 }
 
 function getResultImagesCount(element) {

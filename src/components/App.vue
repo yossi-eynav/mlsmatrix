@@ -1,21 +1,27 @@
 <template>
     <div id="dashboard">
-        <el-button type="success" :loading="loading" v-on:click="hideResults">Hide irrelevant results</el-button>
-        <el-button type="primary" icon="el-icon-refresh" v-on:click="toggleAutoRefresh">{{autoRefreshing ? 'Turn off auto refresh': 'Auto refresh' }}</el-button>
+        <el-button type="primary" :loading="loading" icon="el-icon-refresh" v-on:click="toggleAutoRefresh">Hide irrelevant results</el-button>
         <el-button type="warning" v-on:click="restoreAll">Restore All</el-button>
     </div>
 </template>
 
 <script>
     const { getResultSize, getResultImagesCount, getResultBeds, getResultBathrooms,getResultPrice,findResults } = require('../lib/DOMQueries');
-    const { Rule } = require('../models/Rule');
 
     module.exports = {
         data: function () {
             return {
                 loading: false,
-                autoRefreshing: false
+                autoRefreshing: false,
+                searchQuery: {}
             }
+        },
+        created: function() {
+            chrome.storage.sync.get('searchQuery', (result) => {
+                console.info(result)
+                this.searchQuery = Object.assign({}, result.searchQuery);
+            });
+
         },
         methods: {
             toggleAutoRefresh: function() {
@@ -28,12 +34,23 @@
                     },5000);
 
                     this.autoRefreshing = true;
+                    this.hideResults();
                 }
             },
+            restureResult: e => {
+               window.requestAnimationFrame(() => {
+                   e.style.filter = 'blur(0px)';
+                   e.style.opacity = 1;
+                   e.style.cursor =  'initial';
+               })
+            },
             disableResult: (e) => {
-                e.style.filter = 'blur(4px)';
-                e.style.opacity = 0.6;
-                e.style.cursor =  'not-allowed';
+                window.requestAnimationFrame(() => {
+                    e.style.filter = 'blur(4px)';
+                    e.style.opacity = 0.6;
+                    e.style.cursor =  'not-allowed';
+                });
+
             },
             restoreAll: function(){
                 if(this.autoRefreshing) {
@@ -43,18 +60,35 @@
 
                 results = Array.from(results);
                 results.forEach((e) => {
-                    e.style.filter = 'blur(0px)';
-                    e.style.opacity = 1;
-                    e.style.cursor =  'initial';
+                    this.restureResult(e);
                 })
             },
             hideResults: function () {
                 this.loading = true;
                 let results = findResults() || [];
 
+                const {price, beds, baths, images, lotSize} = this.searchQuery;
+
                 results = Array.from(results).filter((elm) => {
-                    const price = getResultPrice(elm);
-                    return price < 59900;
+                    debugger;
+                    const resultPrice = getResultPrice(elm);
+                    if(Array.isArray(price) && (resultPrice > price[1] || resultPrice < price[0])) {
+                        return true;
+                    }
+
+                    const ResultBeds = getResultBeds(elm);
+                    if(ResultBeds && ResultBeds < beds) { return true; }
+
+                    const ResultBaths = getResultBathrooms(elm);
+                    if(ResultBaths && ResultBaths < baths) { return true; }
+
+                    const ResultImagesCount = getResultImagesCount(elm);
+                    if(ResultImagesCount && (ResultImagesCount.max < images)) { return true; }
+
+                    const resultSize = getResultSize(elm);
+                    if(Array.isArray(lotSize) && (resultSize > lotSize[1] || resultSize < lotSize[0])) { return true; }
+
+                    return false;
                 });
 
                 results.forEach((element) => {
