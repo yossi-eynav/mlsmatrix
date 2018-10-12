@@ -1,16 +1,17 @@
 {
   "manifest_version": 2,
-  "name": "Shared Host",
-  "version": "0.0.2",
+  "name": "MLMore",
+  "version": "0.0.1",
+  "description": "Filter results, view selling price trends and more with MLMore extension",
   "icons": { 
-    "16": "logo16.png",
-    "48": "logo48.png",
-    "128": "logo128.png"
+    "16": "logo_16.png",
+    "48": "logo_48.png",
+    "128": "logo_128.png"
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
-    "default_title": "Inactive.",
-    "default_icon": "off.svg",
+    "default_title": "MLMore",
+    "default_icon": "logo_32.png",
     "default_popup": "options.html"
   },
   "content_scripts": [

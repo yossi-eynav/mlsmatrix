@@ -1,6 +1,6 @@
 <template>
     <div id="dashboard">
-        <el-button type="warning" v-on:click="restoreAll">Restore All Results</el-button>
+        <el-button :disabled="restoreBtnDisabled" type="warning" v-on:click="restoreAll">Restore All Results {{hidingCounter ? `(Hiding ${hidingCounter} Items)`: ''}}</el-button>
     </div>
 </template>
 
@@ -12,6 +12,8 @@
             return {
                 loading: false,
                 autoRefreshing: false,
+                restoreBtnDisabled: false,
+                hidingCounter: 0,
                 searchQuery: {}
             }
         },
@@ -57,7 +59,9 @@
                 results = Array.from(results);
                 results.forEach((e) => {
                     this.restureResult(e);
-                })
+                });
+                this.hidingCounter = 0;
+                this.restoreBtnDisabled = true;
             },
             hideResults: function () {
                 this.loading = true;
@@ -90,7 +94,10 @@
                 console.groupEnd();
 
                 results.forEach((element) => {
-                    this.disableResult(element)
+                    if(element.style.display !== 'none') {
+                        this.hidingCounter++;
+                        this.disableResult(element)
+                    }
                 });
 
                 setTimeout(() => {
@@ -105,7 +112,7 @@
     #dashboard {
         position: absolute;
         z-index: 10000;
-        width: 200px;
+        width: 300px;
         right: 20px;
         bottom: 20px;
         display: flex;
