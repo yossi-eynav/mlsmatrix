@@ -7,25 +7,24 @@
         <form>
             <div>
                 <strong>Price</strong>
-
                 <div class="container-input">
-                    <el-slider v-model="searchQuery.price" range :format-tooltip="formatToDollars" :step="1000" :max="400000" :min="10000"></el-slider>
+                    <el-slider v-model="searchQuery.price" range :format-tooltip="formatToDollars" :step="1000" :max="200000" :min="10000"></el-slider>
                 </div>
             </div>
-            <div>
-                <strong>Beds</strong>
-                <div class="container-input">
-                    <el-input-number v-model="searchQuery.beds" :min="1" :max="10"></el-input-number>
+            <!--<div>-->
+                <!--<strong>Beds</strong>-->
+                <!--<div class="container-input">-->
+                    <!--<el-input-number v-model="searchQuery.beds" :min="1" :max="10"></el-input-number>-->
 
-                </div>
-            </div>
-            <div>
-                <strong>Baths</strong>
-                <div class="container-input">
-                    <el-input-number v-model="searchQuery.baths" :min="1" :max="10"></el-input-number>
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div>-->
+                <!--<strong>Baths</strong>-->
+                <!--<div class="container-input">-->
+                    <!--<el-input-number v-model="searchQuery.baths" :min="1" :max="10"></el-input-number>-->
 
-                </div>
-            </div>
+                <!--</div>-->
+            <!--</div>-->
             <div>
                 <strong>Minimun Images</strong>
                 <div class="container-input">
@@ -37,6 +36,10 @@
                 <div class="container-input">
                     <el-slider v-model="searchQuery.lotSize" :format-tooltip="formatToFt" range :max="4000" :min="100"></el-slider>
                 </div>
+            </div>
+
+            <div>
+                <el-button type="primary"  v-on:click="applyFilters">Apply Results</el-button>
             </div>
         </form>
 
@@ -54,8 +57,8 @@
             return {
                 searchQuery: {
                     price: null,
-                    beds: null,
-                    baths: null,
+                    // beds: null,
+                    // baths: null,
                     images: null,
                     lotSize: null
                 }
@@ -67,6 +70,12 @@
             },
             formatToFt: function(val) {
                 return `${val} ft`
+            },
+            applyFilters: function() {
+                chrome.storage.sync.set({
+                    searchQuery: this.searchQuery
+                });
+                chrome.tabs.reload();
             }
         },
         created: function () {
@@ -80,15 +89,15 @@
 
         },
         watch: {
-            searchQuery: {
-                handler: function(val) {
-                    chrome.storage.sync.set({
-                        searchQuery: val
-                    });
-                    console.info(val);
-                },
-                deep: true
-            }
+            // searchQuery: {
+            //     handler: function(val) {
+            //         chrome.storage.sync.set({
+            //             searchQuery: val
+            //         });
+            //         console.info(val);
+            //     },
+            //     deep: true
+            // }
         }
 
     }

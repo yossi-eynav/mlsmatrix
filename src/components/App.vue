@@ -1,12 +1,11 @@
 <template>
     <div id="dashboard">
-        <el-button type="primary" :loading="loading" icon="el-icon-refresh" v-on:click="toggleAutoRefresh">Hide irrelevant results</el-button>
-        <el-button type="warning" v-on:click="restoreAll">Restore All</el-button>
+        <el-button type="warning" v-on:click="restoreAll">Restore All Results</el-button>
     </div>
 </template>
 
 <script>
-    const { getResultSize, getResultImagesCount, getResultBeds, getResultBathrooms,getResultPrice,findResults } = require('../lib/DOMQueries');
+    const { getResultSize, getResultImagesCount, getResultBeds, getResultBathrooms,getResultPrice,findResults, getResultTitle } = require('../lib/DOMQueries');
 
     module.exports = {
         data: function () {
@@ -18,8 +17,9 @@
         },
         created: function() {
             chrome.storage.sync.get('searchQuery', (result) => {
-                console.info(result)
+                console.info(result);
                 this.searchQuery = Object.assign({}, result.searchQuery);
+                this.toggleAutoRefresh();
             });
 
         },
@@ -39,16 +39,12 @@
             },
             restureResult: e => {
                window.requestAnimationFrame(() => {
-                   e.style.filter = 'blur(0px)';
-                   e.style.opacity = 1;
-                   e.style.cursor =  'initial';
+                   e.style.display = 'block';
                })
             },
             disableResult: (e) => {
                 window.requestAnimationFrame(() => {
-                    e.style.filter = 'blur(4px)';
-                    e.style.opacity = 0.6;
-                    e.style.cursor =  'not-allowed';
+                    e.style.display = 'none';
                 });
 
             },
@@ -67,29 +63,31 @@
                 this.loading = true;
                 let results = findResults() || [];
 
-                const {price, beds, baths, images, lotSize} = this.searchQuery;
-
+                const {price, images, lotSize} = this.searchQuery;
+                console.group();
                 results = Array.from(results).filter((elm) => {
-                    debugger;
                     const resultPrice = getResultPrice(elm);
+                    const ResultImagesCount = getResultImagesCount(elm);
+                    const resultSize = getResultSize(elm);
+                    const resultTitle = getResultTitle(elm);
+
+                    console.table([
+                        ['resultTitle', resultTitle],
+                        ['resultPrice', resultPrice],
+                        ['ResultImagesCount', ResultImagesCount],
+                        ['resultSize', resultSize],
+                    ]);
+
                     if(Array.isArray(price) && (resultPrice > price[1] || resultPrice < price[0])) {
                         return true;
                     }
 
-                    const ResultBeds = getResultBeds(elm);
-                    if(ResultBeds && ResultBeds < beds) { return true; }
-
-                    const ResultBaths = getResultBathrooms(elm);
-                    if(ResultBaths && ResultBaths < baths) { return true; }
-
-                    const ResultImagesCount = getResultImagesCount(elm);
-                    if(ResultImagesCount && (ResultImagesCount.max < images)) { return true; }
-
-                    const resultSize = getResultSize(elm);
+                    if(!ResultImagesCount || (ResultImagesCount.max < images)) { return true; }
                     if(Array.isArray(lotSize) && (resultSize > lotSize[1] || resultSize < lotSize[0])) { return true; }
 
                     return false;
                 });
+                console.groupEnd();
 
                 results.forEach((element) => {
                     this.disableResult(element)

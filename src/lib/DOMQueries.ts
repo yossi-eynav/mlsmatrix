@@ -9,6 +9,13 @@ function getResultPrice(elment) {
     return parseInt(price[1].replace(/,/g, ''));
 }
 
+function getResultTitle(element) {
+    const elm = element.querySelector('.d-fontSize--largest.d-text.d-color--brandDark')
+    if(!elm) { return ""; }
+
+    return elm.innerText;
+}
+
 function getResultBathrooms(element) {
     return element.innerText.match(/([\d.]+)[ ]?Bathrooms/)
 }
@@ -43,5 +50,6 @@ export {
     getResultBathrooms,
     getResultBeds,
     getResultImagesCount,
-    getResultSize
+    getResultSize,
+    getResultTitle
 }
