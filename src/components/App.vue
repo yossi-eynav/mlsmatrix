@@ -114,7 +114,7 @@
         z-index: 10000;
         width: 300px;
         right: 20px;
-        bottom: 20px;
+        top: 20px;
         display: flex;
         flex-flow: column;
         align-content: center;
