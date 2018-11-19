@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "MLMore",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Filter results, view selling price trends and more with MLMore extension",
   "icons": { 
     "16": "logo_16.png",
