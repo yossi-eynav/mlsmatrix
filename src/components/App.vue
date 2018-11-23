@@ -122,7 +122,7 @@
     }
 
     .el-button {
-        margin-bottom: 10px;
+        margin-top: 10px;
         margin-left: 0;
     }
 
